@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionnaire Français</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.5em;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        .search-mode {
+            padding: 15px 25px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-mode:hover {
+            border-color: #3b82f6;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .results {
+            padding: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .word-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .word-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+            transform: translateY(-2px);
+        }
+
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .word-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .word-type {
+            background: #eff6ff;
+            color: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .word-level {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .word-definition {
+            color: #475569;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .word-example {
+            color: #64748b;
+            font-style: italic;
+            padding-left: 15px;
+            border-left: 3px solid #e2e8f0;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .no-results-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .actions {
+            padding: 20px 30px;
+            background: #f8fafc;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+
+        .btn-secondary:hover {
+            background: #eff6ff;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: white;
+        }
+
+        .btn-admin:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        }
+
+        .btn-import {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-import:hover {
+            background: #059669;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1e3a8a;
+            font-size: 1.8em;
+        }
+
+        .close-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .admin-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .admin-section h3 {
+            margin-top: 0;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        .word-of-day {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .word-of-day h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .word-of-day .word {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 2em;
+            color: #3b82f6;
+        }
+
+        .stat-card span {
+            color: #64748b;
+            font-size: 0.9em;
+        }
+
+        .danger-zone {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+        }
+
+        .success-zone {
+            background: #f0fdf4;
+            border: 2px solid #bbf7d0;
+        }
+
+        .info-zone {
+            background: #eff6ff;
+            border: 2px solid #bfdbfe;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #1e293b;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .word-title {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Dictionnaire Français</h1>
+            <p>Explorez la richesse de la langue française</p>
+            <div class="stats">
+                <div class="stat">
+                    <strong id="totalWords">0</strong>
+                    <span>mots</span>
+                </div>
+                <div class="stat">
+                    <strong id="filteredWords">0</strong>
+                    <span>résultats</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-section">
+            <div class="word-of-day" id="wordOfDay"></div>
+            
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Rechercher un mot ou une définition..."
+                    autocomplete="off"
+                >
+                <select id="searchMode" class="search-mode">
+                    <option value="word">Par mot</option>
+                    <option value="definition">Par définition</option>
+                    <option value="all">Tout</option>
+                </select>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-type="all">Tous</button>
+                <button class="filter-btn" data-type="verbe">Verbes</button>
+                <button class="filter-btn" data-type="nom">Noms</button>
+                <button class="filter-btn" data-type="adjectif">Adjectifs</button>
+                <button class="filter-btn" data-type="adverbe">Adverbes</button>
+            </div>
+        </div>
+
+        <div id="results" class="results">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Chargement du dictionnaire...</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="exportDictionary()">📥 Exporter</button>
+            <button class="btn btn-import" onclick="importDictionary()">📤 Importer</button>
+            <button class="btn btn-secondary" onclick="viewFavorites()">❤️ Favoris (<span id="favCount">0</span>)</button>
+            <button class="btn btn-import" onclick="startQuiz()">🎯 Quiz</button>
+            <button class="btn btn-secondary" onclick="resetSearch()">🔄 Réinitialiser</button>
+            <button class="btn btn-admin" onclick="showAdminPanel()">🔐 Admin</button>
+        </div>
+
+        <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+
+        <footer>
+            <p>Dictionnaire Français © 2026 | <span id="version">v1.0</span> | <span id="wordCount">0</span> mots au total</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dictionary data - merged and cleaned from all your sources
+        const dictionary = [
+            {"word":"abandonner","type":"verbe","definition":"Laisser quelque chose définitivement.","example":"Il a abandonné le projet.","level":"B1"},
+            {"word":"abeille","type":"nom féminin","definition":"Insecte qui produit du miel.","example":"Une abeille butine une fleur.","level":"A2"},
+            {"word":"abriter","type":"verbe","definition":"Mettre à l'abri, protéger.","example":"Cet arbre peut abriter plusieurs oiseaux.","level":"A2"},
+            {"word":"accident","type":"nom masculin","definition":"Événement imprévu et souvent grave.","example":"Il y a eu un accident sur la route.","level":"A1"},
+            {"word":"accompagner","type":"verbe","definition":"Aller avec quelqu'un.","example":"Je vais t'accompagner.","level":"A1"},
+            {"word":"accueillir","type":"verbe","definition":"Recevoir quelqu'un avec bienveillance.","example":"Ils vont accueillir leurs invités.","level":"A2"},
+            {"word":"acier","type":"nom masculin","definition":"Alliage de fer et de carbone.","example":"Ce pont est construit en acier.","level":"B1"},
+            {"word":"action","type":"nom féminin","definition":"Acte réalisé.","example":"Cette action est nécessaire.","level":"A2"},
+            {"word":"actif","type":"adjectif","definition":"Qui agit beaucoup.","example":"Il mène une vie très active.","level":"A2"},
+            {"word":"adapter","type":"verbe","definition":"Modifier pour convenir.","example":"Il faut adapter le texte.","level":"B1"},
+            {"word":"admirer","type":"verbe","definition":"Regarder avec respect ou plaisir.","example":"Elle admire le paysage.","level":"A2"},
+            {"word":"adorer","type":"verbe","definition":"Aimer beaucoup.","example":"Elle adore la musique classique.","level":"A1"},
+            {"word":"adulte","type":"nom masculin","definition":"Personne qui n'est plus enfant.","example":"Un adulte responsable.","level":"A1"},
+            {"word":"affaire","type":"nom féminin","definition":"Objet ou ensemble d'activités.","example":"Cette affaire avance bien.","level":"B1"},
+            {"word":"afficher","type":"verbe","definition":"Montrer publiquement.","example":"Ils vont afficher les résultats.","level":"A2"},
+            {"word":"affirmer","type":"verbe","definition":"Déclarer avec certitude.","example":"Il affirme dire la vérité.","level":"B1"},
+            {"word":"agile","type":"adjectif","definition":"Qui se déplace facilement.","example":"Le chat est très agile.","level":"A2"},
+            {"word":"agriculture","type":"nom féminin","definition":"Culture de la terre.","example":"L'agriculture est essentielle.","level":"B1"},
+            {"word":"aider","type":"verbe","definition":"Apporter son assistance.","example":"Je peux t'aider à porter ça.","level":"A1"},
+            {"word":"aigle","type":"nom masculin","definition":"Grand oiseau de proie.","example":"L'aigle plane dans le ciel.","level":"A2"},
+            {"word":"aimer","type":"verbe","definition":"Éprouver de l'affection.","example":"Ils aiment voyager ensemble.","level":"A1"},
+            {"word":"air","type":"nom masculin","definition":"Mélange de gaz qui compose l'atmosphère.","example":"L'air est frais ce matin.","level":"A1"},
+            {"word":"ajouter","type":"verbe","definition":"Mettre en plus.","example":"Tu peux ajouter du sucre.","level":"A1"},
+            {"word":"ajustement","type":"nom masculin","definition":"Action d'ajuster.","example":"Un ajustement est nécessaire.","level":"B2"},
+            {"word":"alarme","type":"nom féminin","definition":"Signal avertissant d'un danger.","example":"L'alarme s'est déclenchée.","level":"A2"},
+            {"word":"aller","type":"verbe","definition":"Se déplacer vers un lieu.","example":"Ils vont au cinéma.","level":"A1"},
+            {"word":"allumer","type":"verbe","definition":"Mettre en marche une lumière ou un feu.","example":"Peux-tu allumer la lampe.","level":"A1"},
+            {"word":"alouette","type":"nom féminin","definition":"Petit oiseau chanteur.","example":"L'alouette chante au lever du soleil.","level":"B1"},
+            {"word":"ambiance","type":"nom féminin","definition":"Atmosphère d'un lieu.","example":"L'ambiance est agréable.","level":"A2"},
+            {"word":"ami","type":"nom masculin","definition":"Personne avec qui on a une relation d'amitié.","example":"C'est mon meilleur ami.","level":"A1"},
+            {"word":"amour","type":"nom masculin","definition":"Sentiment intense d'affection.","example":"L'amour rend la vie plus belle.","level":"A1"},
+            {"word":"amuser","type":"verbe","definition":"Divertir.","example":"Ce jeu va les amuser.","level":"A1"},
+            {"word":"analyser","type":"verbe","definition":"Étudier en détail.","example":"Il analyse les résultats.","level":"B1"},
+            {"word":"ancien","type":"adjectif","definition":"Qui existe depuis longtemps.","example":"C'est un bâtiment ancien.","level":"A2"},
+            {"word":"ange","type":"nom masculin","definition":"Être spirituel représenté avec des ailes.","example":"On voit un ange dans ce tableau.","level":"A2"},
+            {"word":"animal","type":"nom masculin","definition":"Être vivant non végétal.","example":"Le lion est un animal sauvage.","level":"A1"},
+            {"word":"année","type":"nom féminin","definition":"Période de douze mois.","example":"L'année commence en janvier.","level":"A1"},
+            {"word":"annoncer","type":"verbe","definition":"Faire connaître quelque chose.","example":"Ils vont annoncer une bonne nouvelle.","level":"A2"},
+            {"word":"apercevoir","type":"verbe","definition":"Voir rapidement.","example":"J'ai aperçu un renard.","level":"A2"},
+            {"word":"appeler","type":"verbe","definition":"Nommer ou téléphoner.","example":"Je vais appeler mon frère.","level":"A1"},
+            {"word":"appliquer","type":"verbe","definition":"Mettre en pratique.","example":"Appliquer une règle.","level":"B1"},
+            {"word":"apprendre","type":"verbe","definition":"Acquérir des connaissances.","example":"Elle aime apprendre de nouvelles langues.","level":"A1"},
+            {"word":"approcher","type":"verbe","definition":"Venir plus près.","example":"Le train approche de la gare.","level":"A2"},
+            {"word":"arbre","type":"nom masculin","definition":"Plante ligneuse avec un tronc.","example":"Cet arbre est très vieux.","level":"A1"},
+            {"word":"argent","type":"nom masculin","definition":"Métal précieux ou monnaie.","example":"Il économise son argent.","level":"A1"},
+            {"word":"argument","type":"nom masculin","definition":"Raison avancée pour convaincre.","example":"Son argument est solide.","level":"B1"},
+            {"word":"arme","type":"nom féminin","definition":"Objet servant à attaquer ou se défendre.","example":"Cette arme est ancienne.","level":"B1"},
+            {"word":"armoire","type":"nom féminin","definition":"Meuble pour ranger des objets.","example":"Les vêtements sont dans l'armoire.","level":"A1"},
+            {"word":"arriver","type":"verbe","definition":"Parvenir à un lieu.","example":"Ils vont arriver bientôt.","level":"A1"},
+            {"word":"arroser","type":"verbe","definition":"Mouiller avec de l'eau.","example":"Il faut arroser les plantes.","level":"A1"},
+            {"word":"art","type":"nom masculin","definition":"Expression créative.","example":"L'art moderne est fascinant.","level":"A2"},
+            {"word":"article","type":"nom masculin","definition":"Texte ou objet.","example":"J'ai lu un article intéressant.","level":"A2"},
+            {"word":"asile","type":"nom masculin","definition":"Lieu de protection.","example":"Ils ont demandé asile.","level":"B2"},
+            {"word":"aspect","type":"nom masculin","definition":"Apparence extérieure.","example":"L'aspect du ciel annonce la pluie.","level":"A2"},
+            {"word":"assiette","type":"nom féminin","definition":"Récipient plat pour manger.","example":"L'assiette est sur le comptoir.","level":"A1"},
+            {"word":"assis","type":"adjectif","definition":"En position assise.","example":"Il reste assis sur la chaise.","level":"A1"},
+            {"word":"associer","type":"verbe","definition":"Relier des idées.","example":"On associe souvent l'été au soleil.","level":"B1"},
+            {"word":"attendre","type":"verbe","definition":"Rester jusqu'à l'arrivée de quelqu'un.","example":"Ils doivent attendre le bus.","level":"A1"},
+            {"word":"attention","type":"nom féminin","definition":"Concentration de l'esprit.","example":"Fais attention en traversant.","level":"A1"},
+            {"word":"attraper","type":"verbe","definition":"Saisir quelque chose.","example":"Il a attrapé la balle.","level":"A1"},
+            {"word":"aube","type":"nom féminin","definition":"Début du jour.","example":"L'aube colore le ciel.","level":"B1"},
+            {"word":"aucun","type":"adjectif","definition":"Pas un seul.","example":"Il n'y a aucun problème.","level":"A2"},
+            {"word":"audace","type":"nom féminin","definition":"Courage d'oser.","example":"Il a eu l'audace de parler.","level":"B2"},
+            {"word":"augmenter","type":"verbe","definition":"Rendre plus grand.","example":"Ils vont augmenter la production.","level":"A2"},
+            {"word":"auteur","type":"nom masculin","definition":"Personne qui écrit.","example":"Cet auteur est célèbre.","level":"A2"},
+            {"word":"automne","type":"nom masculin","definition":"Saison entre été et hiver.","example":"Les feuilles tombent en automne.","level":"A1"},
+            {"word":"autorité","type":"nom féminin","definition":"Pouvoir de commander.","example":"Il a de l'autorité.","level":"B1"},
+            {"word":"avancer","type":"verbe","definition":"Aller vers l'avant.","example":"Le bateau avance lentement.","level":"A1"},
+            {"word":"avenir","type":"nom masculin","definition":"Temps à venir.","example":"L'avenir est incertain.","level":"A2"},
+            {"word":"avion","type":"nom masculin","definition":"Appareil volant motorisé.","example":"L'avion décolle bientôt.","level":"A1"},
+            {"word":"avril","type":"nom masculin","definition":"Quatrième mois de l'année.","example":"Avril est souvent pluvieux.","level":"A1"},
+            {"word":"bague","type":"nom féminin","definition":"Anneau porté au doigt.","example":"Elle porte une bague en or.","level":"A1"},
+            {"word":"bagage","type":"nom masculin","definition":"Objet transporté en voyage.","example":"Son bagage est lourd.","level":"A2"},
+            {"word":"bain","type":"nom masculin","definition":"Action de se laver dans l'eau.","example":"Il prend un bain chaud.","level":"A1"},
+            {"word":"baiser","type":"nom masculin","definition":"Contact affectueux des lèvres.","example":"Ils échangent un baiser.","level":"A2"},
+            {"word":"balayer","type":"verbe","definition":"Nettoyer avec un balai.","example":"Elle va balayer la cuisine.","level":"A1"},
+            {"word":"balcon","type":"nom masculin","definition":"Plateforme extérieure.","example":"Le balcon donne sur la rue.","level":"A1"},
+            {"word":"balle","type":"nom féminin","definition":"Objet rond utilisé dans des jeux.","example":"La balle roule sous le canapé.","level":"A1"},
+            {"word":"banane","type":"nom féminin","definition":"Fruit jaune allongé.","example":"Il mange une banane.","level":"A1"},
+            {"word":"banc","type":"nom masculin","definition":"Siège long.","example":"Ils s'assoient sur un banc.","level":"A1"},
+            {"word":"barbe","type":"nom féminin","definition":"Poils du visage.","example":"Sa barbe est très longue.","level":"A1"},
+            {"word":"barque","type":"nom féminin","definition":"Petit bateau.","example":"La barque flotte sur le lac.","level":"A2"},
+            {"word":"bas","type":"adjectif","definition":"De faible hauteur.","example":"Le plafond est très bas.","level":"A1"},
+            {"word":"bateau","type":"nom masculin","definition":"Véhicule flottant.","example":"Le bateau quitte le port.","level":"A1"},
+            {"word":"bâtiment","type":"nom masculin","definition":"Construction destinée à un usage.","example":"Ce bâtiment est ancien.","level":"A2"},
+            {"word":"beau","type":"adjectif","definition":"Qui plaît à l'œil.","example":"C'est un beau paysage.","level":"A1"},
+            {"word":"besoin","type":"nom masculin","definition":"Nécessité.","example":"J'ai besoin d'aide.","level":"A1"},
+            {"word":"beurre","type":"nom masculin","definition":"Produit laitier gras.","example":"Elle met du beurre sur le pain.","level":"A1"},
+            {"word":"bibliothèque","type":"nom féminin","definition":"Lieu ou meuble pour les livres.","example":"La bibliothèque est silencieuse.","level":"A2"},
+            {"word":"bicyclette","type":"nom féminin","definition":"Véhicule à deux roues.","example":"Il roule en bicyclette.","level":"A1"},
+            {"word":"bien","type":"adverbe","definition":"De manière satisfaisante.","example":"Tout se passe bien.","level":"A1"},
+            {"word":"bizarre","type":"adjectif","definition":"Étrange.","example":"Ce comportement est bizarre.","level":"A2"},
+            {"word":"blanc","type":"adjectif","definition":"Couleur de la neige.","example":"Le mur est blanc.","level":"A1"},
+            {"word":"blesser","type":"verbe","definition":"Faire mal physiquement ou moralement.","example":"Il ne voulait pas le blesser.","level":"A2"},
+            {"word":"bleu","type":"adjectif","definition":"Couleur du ciel.","example":"Ses yeux sont bleus.","level":"A1"},
+            {"word":"boire","type":"verbe","definition":"Avaler un liquide.","example":"Il boit de l'eau.","level":"A1"},
+            {"word":"bois","type":"nom masculin","definition":"Matériau provenant des arbres.","example":"La table est en bois.","level":"A1"},
+            {"word":"bon","type":"adjectif","definition":"De bonne qualité.","example":"Ce repas est très bon.","level":"A1"},
+            {"word":"bondir","type":"verbe","definition":"Sauter rapidement.","example":"Le chat bondit sur la chaise.","level":"A2"},
+            {"word":"bonheur","type":"nom masculin","definition":"État de joie.","example":"Le bonheur est important.","level":"A1"},
+            {"word":"bord","type":"nom masculin","definition":"Limite d'une surface.","example":"Ils marchent au bord du lac.","level":"A2"},
+            {"word":"bouche","type":"nom féminin","definition":"Ouverture du visage.","example":"Il ouvre la bouche pour parler.","level":"A1"},
+            {"word":"bouger","type":"verbe","definition":"Changer de position.","example":"Ne bouge pas.","level":"A1"},
+            {"word":"bougie","type":"nom féminin","definition":"Cylindre de cire qui brûle.","example":"La bougie éclaire la pièce.","level":"A1"},
+            {"word":"bouquin","type":"nom masculin","definition":"Livre (familier).","example":"Il lit un vieux bouquin.","level":"B1"},
+            {"word":"bout","type":"nom masculin","definition":"Extrémité de quelque chose.","example":"Le bout de la corde est usé.","level":"A2"},
+            {"word":"branche","type":"nom féminin","definition":"Partie d'un arbre.","example":"La branche est cassée.","level":"A1"},
+            {"word":"braver","type":"verbe","definition":"Affronter sans peur.","example":"Il brave le danger.","level":"B1"},
+            {"word":"brillant","type":"adjectif","definition":"Très intelligent ou lumineux.","example":"Un élève brillant.","level":"A2"},
+            {"word":"briller","type":"verbe","definition":"Émettre de la lumière.","example":"Les étoiles brillent la nuit.","level":"A1"},
+            {"word":"brouillard","type":"nom masculin","definition":"Nuage au sol.","example":"Le brouillard réduit la visibilité.","level":"A2"},
+            {"word":"bruit","type":"nom masculin","definition":"Son perçu.","example":"Quel est ce bruit.","level":"A1"},
+            {"word":"brûler","type":"verbe","definition":"Détruire par le feu.","example":"Le bois brûle vite.","level":"A1"},
+            {"word":"budget","type":"nom masculin","definition":"Somme d'argent prévue.","example":"Le budget est limité.","level":"B1"},
+            {"word":"bureaucratie","type":"nom féminin","definition":"Administration complexe.","example":"La bureaucratie ralentit tout.","level":"C1"},
+            {"word":"bureau","type":"nom masculin","definition":"Meuble ou pièce de travail.","example":"Il travaille à son bureau.","level":"A1"},
+            {"word":"bénéficier","type":"verbe","definition":"Recevoir un avantage.","example":"Il bénéficie d'une aide.","level":"B1"},
+            {"word":"cacher","type":"verbe","definition":"Mettre hors de vue.","example":"Il cache un cadeau.","level":"A1"},
+            {"word":"cadeau","type":"nom masculin","definition":"Objet offert.","example":"Elle reçoit un cadeau.","level":"A1"},
+            {"word":"café","type":"nom masculin","definition":"Boisson chaude.","example":"Il boit un café.","level":"A1"},
+            {"word":"cage","type":"nom féminin","definition":"Enclos pour animaux.","example":"L'oiseau est dans sa cage.","level":"A1"},
+            {"word":"calculer","type":"verbe","definition":"Effectuer un calcul.","example":"Il calcule le total.","level":"A2"},
+            {"word":"calme","type":"adjectif","definition":"Sans agitation.","example":"La mer est calme.","level":"A1"},
+            {"word":"camp","type":"nom masculin","definition":"Lieu d'installation temporaire.","example":"Ils montent un camp.","level":"A2"},
+            {"word":"canard","type":"nom masculin","definition":"Oiseau aquatique.","example":"Le canard nage sur l'étang.","level":"A1"},
+            {"word":"canapé","type":"nom masculin","definition":"Meuble pour s'asseoir.","example":"Ils s'assoient sur le canapé.","level":"A1"},
+            {"word":"capable","type":"adjectif","definition":"Qui peut faire quelque chose.","example":"Elle est capable de réussir.","level":"A2"},
+            {"word":"capacité","type":"nom féminin","definition":"Aptitude ou contenance.","example":"Il a une grande capacité d'adaptation.","level":"B1"},
+            {"word":"capitaine","type":"nom masculin","definition":"Chef d'un navire ou d'une équipe.","example":"Le capitaine donne des ordres.","level":"A2"},
+            {"word":"car","type":"nom masculin","definition":"Autocar.","example":"Le car part à midi.","level":"A1"},
+            {"word":"caractère","type":"nom masculin","definition":"Personnalité ou signe.","example":"Elle a un fort caractère.","level":"B1"},
+            {"word":"carte","type":"nom féminin","definition":"Représentation graphique.","example":"La carte montre la région.","level":"A1"},
+            {"word":"cas","type":"nom masculin","definition":"Situation particulière.","example":"Dans ce cas, il faut agir.","level":"A2"},
+            {"word":"casser","type":"verbe","definition":"Mettre en morceaux.","example":"Il casse un verre.","level":"A1"},
+            {"word":"cause","type":"nom féminin","definition":"Origine d'un effet.","example":"La cause du bruit est inconnue.","level":"A2"},
+            {"word":"cave","type":"nom féminin","definition":"Pièce souterraine.","example":"Le vin est dans la cave.","level":"A2"},
+            {"word":"ceinture","type":"nom féminin","definition":"Accessoire pour maintenir un vêtement.","example":"Il porte une ceinture en cuir.","level":"A1"},
+            {"word":"célébrer","type":"verbe","definition":"Fêter un événement.","example":"Ils célèbrent un anniversaire.","level":"A2"},
+            {"word":"cendre","type":"nom féminin","definition":"Résidu de combustion.","example":"La cheminée contient des cendres.","level":"A2"},
+            {"word":"cent","type":"adjectif","definition":"Nombre 100.","example":"Il a cent euros.","level":"A1"},
+            {"word":"cerise","type":"nom féminin","definition":"Petit fruit rouge.","example":"La cerise est sucrée.","level":"A1"},
+            {"word":"cerf","type":"nom masculin","definition":"Grand mammifère à bois.","example":"Le cerf traverse la forêt.","level":"A2"},
+            {"word":"certitude","type":"nom féminin","definition":"Conviction totale.","example":"J'en ai la certitude.","level":"B1"},
+            {"word":"chaise","type":"nom féminin","definition":"Siège pour une personne.","example":"La chaise est confortable.","level":"A1"},
+            {"word":"chaleur","type":"nom féminin","definition":"Température élevée.","example":"La chaleur est intense aujourd'hui.","level":"A1"},
+            {"word":"chambre","type":"nom féminin","definition":"Pièce pour dormir.","example":"La chambre est lumineuse.","level":"A1"},
+            {"word":"champ","type":"nom masculin","definition":"Étendue de terre cultivée.","example":"Le champ est couvert de blé.","level":"A1"},
+            {"word":"chance","type":"nom féminin","definition":"Possibilité favorable.","example":"Il a de la chance.","level":"A1"},
+            {"word":"changer","type":"verbe","definition":"Modifier.","example":"Ils vont changer de voiture.","level":"A1"},
+            {"word":"chanson","type":"nom féminin","definition":"Œuvre musicale chantée.","example":"Cette chanson est célèbre.","level":"A1"},
+            {"word":"chant","type":"nom masculin","definition":"Action de chanter.","example":"Le chant des oiseaux est agréable.","level":"A2"},
+            {"word":"chaud","type":"adjectif","definition":"À haute température.","example":"Le café est chaud.","level":"A1"},
+            {"word":"chef","type":"nom masculin","definition":"Personne qui dirige.","example":"Le chef donne des instructions.","level":"A2"},
+            {"word":"chemin","type":"nom masculin","definition":"Voie de passage.","example":"Le chemin mène au village.","level":"A1"},
+            {"word":"cheval","type":"nom masculin","definition":"Grand mammifère domestique.","example":"Le cheval galope.","level":"A1"},
+            {"word":"cheveu","type":"nom masculin","definition":"Fil qui pousse sur la tête.","example":"Un cheveu tombe.","level":"A1"},
+            {"word":"chien","type":"nom masculin","definition":"Animal domestique fidèle.","example":"Le chien aboie.","level":"A1"},
+            {"word":"choisir","type":"verbe","definition":"Sélectionner.","example":"Elle doit choisir un cadeau.","level":"A1"},
+            {"word":"chose","type":"nom féminin","definition":"Objet ou idée.","example":"C'est une chose importante.","level":"A1"},
+            {"word":"ciel","type":"nom masculin","definition":"Espace au-dessus de la Terre.","example":"Le ciel est bleu.","level":"A1"},
+            {"word":"cinq","type":"adjectif","definition":"Nombre 5.","example":"Ils sont cinq dans la famille.","level":"A1"},
+            {"word":"clair","type":"adjectif","definition":"Luminosité élevée.","example":"La pièce est claire.","level":"A1"},
+            {"word":"classe","type":"nom féminin","definition":"Groupe d'élèves.","example":"La classe est attentive.","level":"A1"},
+            {"word":"clé","type":"nom féminin","definition":"Objet pour ouvrir une serrure.","example":"La clé est sur la table.","level":"A1"},
+            {"word":"climat","type":"nom masculin","definition":"Conditions météorologiques.","example":"Le climat est froid ici.","level":"A2"},
+            {"word":"collaborer","type":"verbe","definition":"Travailler ensemble.","example":"Ils collaborent sur le projet.","level":"B1"},
+            {"word":"comprendre","type":"verbe","definition":"Saisir le sens.","example":"Je comprends le problème.","level":"A1"},
+            {"word":"confiance","type":"nom féminin","definition":"Sentiment de sécurité.","example":"J'ai confiance en toi.","level":"A2"},
+            {"word":"construire","type":"verbe","definition":"Bâtir.","example":"Ils construisent une maison.","level":"A2"},
+            {"word":"culture","type":"nom féminin","definition":"Ensemble de connaissances.","example":"La culture générale est importante.","level":"B1"},
+            {"word":"dans","type":"préposition","definition":"Indique l'intérieur d'un lieu ou un moment futur.","example":"Le chat est dans la maison.","level":"A1"},
+            {"word":"danger","type":"nom masculin","definition":"Risque de dommage ou de blessure.","example":"Attention au danger sur la route.","level":"A2"},
+            {"word":"danse","type":"nom féminin","definition":"Mouvement du corps au rythme de la musique.","example":"La danse commence ce soir.","level":"A1"},
+            {"word":"date","type":"nom féminin","definition":"Jour précis d'un événement.","example":"Quelle est la date aujourd'hui ?","level":"A1"},
+            {"word":"davantage","type":"adverbe","definition":"Plus qu'avant ou plus que quelque chose.","example":"Je veux en savoir davantage.","level":"B1"},
+            {"word":"devoir","type":"verbe","definition":"Avoir la nécessité ou l'obligation de.","example":"Je dois finir ce travail.","level":"A1"},
+            {"word":"débat","type":"nom masculin","definition":"Discussion organisée sur un sujet.","example":"Le débat a duré deux heures.","level":"B2"},
+            {"word":"début","type":"nom masculin","definition":"Commencement de quelque chose.","example":"Au début, il hésitait.","level":"A2"},
+            {"word":"déceler","type":"verbe","definition":"Découvrir quelque chose de difficile à voir.","example":"On a décelé une erreur.","level":"C1"},
+            {"word":"décider","type":"verbe","definition":"Choisir une option après réflexion.","example":"Nous avons décidé de partir.","level":"A2"},
+            {"word":"décrire","type":"verbe","definition":"Donner les caractéristiques d'une chose.","example":"Décris la maison.","level":"A2"},
+            {"word":"défendre","type":"verbe","definition":"Protéger ou s'opposer à quelque chose.","example":"Il défend ses idées.","level":"B1"},
+            {"word":"défi","type":"nom masculin","definition":"Épreuve qui demande des efforts.","example":"Relever un défi sportif.","level":"B2"},
+            {"word":"délicat","type":"adjectif","definition":"Fragile ou difficile à gérer.","example":"C'est une situation délicate.","level":"B2"},
+            {"word":"déjeuner","type":"nom masculin","definition":"Repas pris vers midi.","example":"Le déjeuner est à 13 heures.","level":"A1"},
+            {"word":"demander","type":"verbe","definition":"Poser une question ou requérir quelque chose.","example":"Je vais demander de l'aide.","level":"A1"},
+            {"word":"demeurer","type":"verbe","definition":"Rester dans un lieu ou persister.","example":"Il demeure à Paris.","level":"B2"},
+            {"word":"demi","type":"adjectif","definition":"La moitié de quelque chose.","example":"Une demi-heure.","level":"A2"},
+            {"word":"dernier","type":"adjectif","definition":"Qui vient en fin de série.","example":"Le dernier chapitre.","level":"A2"},
+            {"word":"désirer","type":"verbe","definition":"Vouloir intensément.","example":"Je désire apprendre davantage.","level":"B1"},
+            {"word":"désordre","type":"nom masculin","definition":"Manque d'ordre.","example":"La chambre est en désordre.","level":"A2"},
+            {"word":"détail","type":"nom masculin","definition":"Élément précis d'un ensemble.","example":"Regarde chaque détail.","level":"B1"},
+            {"word":"déterminer","type":"verbe","definition":"Fixer ou établir précisément.","example":"Il faut déterminer la cause.","level":"B2"},
+            {"word":"détester","type":"verbe","definition":"Avoir une aversion forte.","example":"Je déteste le bruit.","level":"A2"},
+            {"word":"devenir","type":"verbe","definition":"Changer d'état ou de fonction.","example":"Il veut devenir médecin.","level":"A1"},
+            {"word":"deviner","type":"verbe","definition":"Trouver sans preuve complète.","example":"Peux-tu deviner la réponse ?","level":"B1"},
+            {"word":"devant","type":"préposition","definition":"En face de, à l'avant.","example":"La voiture est devant la maison.","level":"A1"},
+            {"word":"dialogue","type":"nom masculin","definition":"Échange verbal entre deux personnes.","example":"Un dialogue intéressant.","level":"B1"},
+            {"word":"difficile","type":"adjectif","definition":"Qui demande un effort.","example":"Cet exercice est difficile.","level":"A2"},
+            {"word":"différent","type":"adjectif","definition":"Qui n'est pas pareil.","example":"Ils ont des goûts différents.","level":"A2"},
+            {"word":"dire","type":"verbe","definition":"Exprimer par la parole.","example":"Que veux-tu dire ?","level":"A1"},
+            {"word":"disparaître","type":"verbe","definition":"Cesser d'être visible.","example":"Le soleil disparaît.","level":"B1"},
+            {"word":"distance","type":"nom féminin","definition":"Espacement entre deux points.","example":"La distance est importante.","level":"A2"},
+            {"word":"divers","type":"adjectif","definition":"Varié.","example":"Des opinions diverses.","level":"B1"},
+            {"word":"diviser","type":"verbe","definition":"Séparer en parties.","example":"Divise le gâteau en huit parts.","level":"A2"},
+            {"word":"docteur","type":"nom masculin","definition":"Professionnel de la médecine.","example":"Le docteur l'a examiné.","level":"A1"},
+            {"word":"document","type":"nom masculin","definition":"Texte officiel ou écrit.","example":"Le document est signé.","level":"A2"},
+            {"word":"eau","type":"nom féminin","definition":"Liquide indispensable à la vie.","example":"Bois de l'eau.","level":"A1"},
+            {"word":"école","type":"nom féminin","definition":"Lieu d'enseignement.","example":"Les enfants vont à l'école.","level":"A1"},
+            {"word":"écouter","type":"verbe","definition":"Prêter l'oreille.","example":"Écoute la chanson.","level":"A1"},
+            {"word":"écrire","type":"verbe","definition":"Tracer des lettres pour communiquer.","example":"Écris ton nom.","level":"A1"},
+            {"word":"économie","type":"nom féminin","definition":"Étude de la production et consommation.","example":"L'économie du pays grandit.","level":"B2"},
+            {"word":"écran","type":"nom masculin","definition":"Surface d'affichage d'un appareil.","example":"L'écran est cassé.","level":"A2"},
+            {"word":"énergie","type":"nom féminin","definition":"Capacité à produire du travail.","example":"L'énergie solaire est propre.","level":"B1"},
+            {"word":"enfant","type":"nom masculin","definition":"Personne jeune, pas adulte.","example":"L'enfant joue dehors.","level":"A1"},
+            {"word":"enfin","type":"adverbe","definition":"Pour marquer la fin ou le soulagement.","example":"Enfin, il est arrivé.","level":"A1"},
+            {"word":"enlever","type":"verbe","definition":"Retirer quelque chose.","example":"Enlève tes chaussures.","level":"A1"},
+            {"word":"ensemble","type":"adverbe","definition":"Conjointement.","example":"Allons-y ensemble.","level":"A1"},
+            {"word":"entendre","type":"verbe","definition":"Percevoir des sons.","example":"Je n'ai pas entendu la question.","level":"A1"},
+            {"word":"entreprise","type":"nom féminin","definition":"Organisation commerciale.","example":"Cette entreprise embauche.","level":"A2"},
+            {"word":"envie","type":"nom féminin","definition":"Désir de faire ou d'avoir quelque chose.","example":"J'ai envie d'un gâteau.","level":"A2"},
+            {"word":"envoyer","type":"verbe","definition":"Faire parvenir quelque chose.","example":"J'envoie un email.","level":"A1"},
+            {"word":"erreur","type":"nom féminin","definition":"Fausse action ou jugement.","example":"C'était une erreur.","level":"A1"},
+            {"word":"escalier","type":"nom masculin","definition":"Suite de marches pour monter.","example":"Monte les escaliers.","level":"A2"},
+            {"word":"espoir","type":"nom masculin","definition":"Attente positive pour l'avenir.","example":"J'ai l'espoir de réussir.","level":"B1"},
+            {"word":"essayer","type":"verbe","definition":"Faire une tentative.","example":"Essaie encore une fois.","level":"A1"},
+            {"word":"étage","type":"nom masculin","definition":"Niveau d'un bâtiment.","example":"Nous habitons au troisième étage.","level":"A2"},
+            {"word":"état","type":"nom masculin","definition":"Condition ou gouvernement.","example":"L'état de la route est mauvais.","level":"A2"},
+            {"word":"été","type":"nom masculin","definition":"Saison chaude de l'année.","example":"L'été est chaud.","level":"A1"},
+            {"word":"être","type":"verbe","definition":"Verbe d'existence ou d'identité.","example":"Je suis étudiant.","level":"A1"},
+            {"word":"étranger","type":"adjectif","definition":"Qui vient d'un autre pays.","example":"Un visiteur étranger.","level":"A2"},
+            {"word":"événement","type":"nom masculin","definition":"Fait notable.","example":"L'événement a attiré du monde.","level":"B2"},
+            {"word":"éviter","type":"verbe","definition":"Se soustraire à quelque chose.","example":"Évite les erreurs.","level":"A2"},
+            {"word":"exact","type":"adjectif","definition":"Précis et sans erreur.","example":"Le chiffre exact est 20.","level":"B1"},
+            {"word":"exemple","type":"nom masculin","definition":"Cas illustratif.","example":"Donne un exemple.","level":"A1"},
+            {"word":"exister","type":"verbe","definition":"Avoir une existence.","example":"La preuve qu'il existe.","level":"A2"},
+            {"word":"expliquer","type":"verbe","definition":"Rendre clair par des paroles.","example":"Explique ta réponse.","level":"A1"},
+            {"word":"face","type":"nom féminin","definition":"Partie avant de la tête.","example":"Il a une belle face.","level":"A2"},
+            {"word":"facile","type":"adjectif","definition":"Sans grande difficulté.","example":"C'est un exercice facile.","level":"A1"},
+            {"word":"faible","type":"adjectif","definition":"Manquant de force.","example":"Un son faible.","level":"A2"},
+            {"word":"faire","type":"verbe","definition":"Accomplir une action.","example":"Que fais-tu ?","level":"A1"},
+            {"word":"faim","type":"nom féminin","definition":"Sensation de besoin de manger.","example":"J'ai faim.","level":"A1"},
+            {"word":"famille","type":"nom féminin","definition":"Groupe de parents liés par le sang ou le mariage.","example":"Ma famille est grande.","level":"A1"},
+            {"word":"fermer","type":"verbe","definition":"Rendre inaccessible.","example":"Il ferme la fenêtre.","level":"A1"},
+            {"word":"fête","type":"nom féminin","definition":"Réunion pour célébrer.","example":"La fête était réussie.","level":"A1"},
+            {"word":"feu","type":"nom masculin","definition":"Phénomène de combustion ou signal lumineux.","example":"Le feu brûle.","level":"A1"},
+            {"word":"feuille","type":"nom féminin","definition":"Organe d'une plante ou page de papier.","example":"Une feuille tombe.","level":"A2"},
+            {"word":"fier","type":"adjectif","definition":"Rempli d'orgueil positif.","example":"Je suis fier de toi.","level":"B1"},
+            {"word":"film","type":"nom masculin","definition":"Œuvre cinématographique.","example":"J'aime ce film.","level":"A2"},
+            {"word":"finir","type":"verbe","definition":"Arriver à la fin.","example":"Il finit son repas.","level":"A1"},
+            {"word":"fleur","type":"nom féminin","definition":"Partie colorée d'une plante.","example":"La fleur sent bon.","level":"A1"},
+            {"word":"fort","type":"adjectif","definition":"Puissant ou intense.","example":"Un vent fort.","level":"A2"},
+            {"word":"français","type":"adjectif","definition":"Relatif à la France ou à sa langue.","example":"Un film français.","level":"A1"},
+            {"word":"frapper","type":"verbe","definition":"Donner un coup.","example":"Il frappe à la porte.","level":"A2"},
+            {"word":"frère","type":"nom masculin","definition":"Enfant du même parent.","example":"Mon frère est plus jeune.","level":"A1"},
+            {"word":"fromage","type":"nom masculin","definition":"Produit laitier fermenté.","example":"Le fromage français est célèbre.","level":"A1"},
+            {"word":"fruit","type":"nom masculin","definition":"Produit comestible de certaines plantes.","example":"Le fruit est mûr.","level":"A1"},
+            {"word":"gagner","type":"verbe","definition":"Obtenir la victoire ou de l'argent.","example":"Elle a gagné la course.","level":"A1"},
+            {"word":"garder","type":"verbe","definition":"Conserver ou surveiller.","example":"Garde ce secret.","level":"A2"},
+            {"word":"garçon","type":"nom masculin","definition":"Jeune homme.","example":"Le garçon joue dehors.","level":"A1"},
+            {"word":"gauche","type":"nom féminin","definition":"Côté opposé à la droite.","example":"Tourne à gauche.","level":"A1"},
+            {"word":"gâteau","type":"nom masculin","definition":"Préparation sucrée cuite.","example":"Le gâteau est délicieux.","level":"A1"},
+            {"word":"glace","type":"nom féminin","definition":"Eau gelée ou crème glacée.","example":"La glace fond.","level":"A1"},
+            {"word":"goût","type":"nom masculin","definition":"Sensation liée à la saveur.","example":"Le goût est sucré.","level":"A1"},
+            {"word":"goûter","type":"verbe","definition":"Essayer le goût de quelque chose.","example":"Goûte ce plat.","level":"A1"},
+            {"word":"grand","type":"adjectif","definition":"De grande taille.","example":"Un grand immeuble.","level":"A1"},
+            {"word":"gros","type":"adjectif","definition":"De grande dimension ou en quantité.","example":"Un gros problème.","level":"A2"},
+            {"word":"guerre","type":"nom féminin","definition":"Conflit armé entre États.","example":"La guerre a duré des années.","level":"B2"},
+            {"word":"guide","type":"nom masculin","definition":"Personne qui montre le chemin.","example":"Le guide nous accompagne.","level":"A2"},
+            {"word":"guitare","type":"nom féminin","definition":"Instrument de musique à cordes.","example":"Il joue de la guitare.","level":"A2"},
+            {"word":"habiter","type":"verbe","definition":"Vivre dans un lieu.","example":"Nous habitons en ville.","level":"A1"},
+            {"word":"habitude","type":"nom féminin","definition":"Comportement répété.","example":"J'ai l'habitude de courir le matin.","level":"A2"},
+            {"word":"haut","type":"adjectif","definition":"Élevé en hauteur.","example":"Une montagne haute.","level":"A1"},
+            {"word":"heure","type":"nom féminin","definition":"Unité de temps ou moment précis.","example":"Quelle heure est-il ?","level":"A1"},
+            {"word":"heureux","type":"adjectif","definition":"Qui ressent de la joie.","example":"Elle est heureuse aujourd'hui.","level":"A1"},
+            {"word":"hier","type":"adverbe","definition":"Le jour précédent aujourd'hui.","example":"J'étais fatigué hier.","level":"A1"},
+            {"word":"histoire","type":"nom féminin","definition":"Récit d'événements.","example":"L'histoire de ce pays est riche.","level":"A1"},
+            {"word":"hiver","type":"nom masculin","definition":"Saison froide.","example":"L'hiver est froid.","level":"A1"},
+            {"word":"homme","type":"nom masculin","definition":"Adulte masculin.","example":"Cet homme est gentil.","level":"A1"},
+            {"word":"hôtel","type":"nom masculin","definition":"Établissement d'hébergement payant.","example":"Nous réservons un hôtel.","level":"A2"},
+            {"word":"ici","type":"adverbe","definition":"À cet endroit.","example":"Je suis ici.","level":"A1"},
+            {"word":"idée","type":"nom féminin","definition":"Représentation mentale.","example":"J'ai une bonne idée.","level":"A1"},
+            {"word":"image","type":"nom féminin","definition":"Représentation visuelle.","example":"Cette image est claire.","level":"A1"},
+            {"word":"imaginer","type":"verbe","definition":"Créer dans son esprit.","example":"Il imagine une histoire.","level":"A2"},
+            {"word":"important","type":"adjectif","definition":"Qui a beaucoup de valeur.","example":"C'est très important.","level":"A1"},
+            {"word":"impossible","type":"adjectif","definition":"Qui ne peut pas se faire.","example":"C'est impossible.","level":"A1"},
+            {"word":"jamais","type":"adverbe","definition":"À aucun moment.","example":"Je ne viens jamais.","level":"A1"},
+            {"word":"jardin","type":"nom masculin","definition":"Terrain cultivé.","example":"Le jardin est fleuri.","level":"A1"},
+            {"word":"jaune","type":"adjectif","definition":"Couleur du soleil.","example":"Un mur jaune.","level":"A1"},
+            {"word":"jeune","type":"adjectif","definition":"Peu âgé.","example":"Il est jeune.","level":"A1"},
+            {"word":"jeu","type":"nom masculin","definition":"Activité de divertissement.","example":"Ce jeu est très amusant.","level":"A1"},
+            {"word":"joie","type":"nom féminin","definition":"Sentiment de bonheur.","example":"Elle ressent de la joie.","level":"A1"},
+            {"word":"jouer","type":"verbe","definition":"Participer à un jeu.","example":"Ils jouent ensemble.","level":"A1"},
+            {"word":"jour","type":"nom masculin","definition":"Période de 24 heures.","example":"Un beau jour.","level":"A1"},
+            {"word":"kilomètre","type":"nom masculin","definition":"Unité de distance.","example":"Deux kilomètres.","level":"A1"},
+            {"word":"lac","type":"nom masculin","definition":"Grande étendue d'eau.","example":"Le lac est calme.","level":"A1"},
+            {"word":"laisser","type":"verbe","definition":"Permettre ou abandonner.","example":"Laisse-moi faire.","level":"A1"},
+            {"word":"langue","type":"nom féminin","definition":"Système de communication.","example":"La langue française.","level":"A1"},
+            {"word":"lent","type":"adjectif","definition":"Qui va doucement.","example":"Un pas lent.","level":"A1"},
+            {"word":"lentement","type":"adverbe","definition":"Avec lenteur.","example":"Il parle lentement.","level":"A1"},
+            {"word":"liberté","type":"nom féminin","definition":"État d'indépendance.","example":"La liberté d'expression.","level":"B1"},
+            {"word":"lire","type":"verbe","definition":"Déchiffrer un texte.","example":"Elle lit un livre.","level":"A1"},
+            {"word":"livre","type":"nom masculin","definition":"Objet composé de pages écrites.","example":"Je lis un livre intéressant.","level":"A1"},
+            {"word":"lumière","type":"nom féminin","definition":"Clarté visible.","example":"La lumière du soleil.","level":"A1"},
+            {"word":"machine","type":"nom masculin","definition":"Appareil mécanique.","example":"Une machine moderne.","level":"A1"},
+            {"word":"main","type":"nom féminin","definition":"Partie du corps.","example":"Il lève la main.","level":"A1"},
+            {"word":"maison","type":"nom féminin","definition":"Lieu pour habiter.","example":"Ma maison est ici.","level":"A1"},
+            {"word":"mal","type":"adverbe","definition":"De mauvaise manière.","example":"Il a mal répondu.","level":"A1"},
+            {"word":"manger","type":"verbe","definition":"Se nourrir.","example":"Nous mangeons ensemble.","level":"A1"},
+            {"word":"marcher","type":"verbe","definition":"Avancer à pied.","example":"Il marche vite.","level":"A1"},
+            {"word":"mer","type":"nom féminin","definition":"Grande étendue d'eau salée.","example":"La mer est bleue.","level":"A1"},
+            {"word":"moment","type":"nom masculin","definition":"Courte période de temps.","example":"Un bon moment.","level":"A1"},
+            {"word":"monde","type":"nom masculin","definition":"La Terre ou l'humanité.","example":"Le monde change.","level":"A1"},
+            {"word":"naître","type":"verbe","definition":"Venir au monde.","example":"Il est né en avril.","level":"A1"},
+            {"word":"nature","type":"nom féminin","definition":"Ensemble du monde vivant.","example":"La nature est belle.","level":"A1"},
+            {"word":"nécessaire","type":"adjectif","definition":"Indispensable.","example":"C'est nécessaire.","level":"A2"},
+            {"word":"niveau","type":"nom masculin","definition":"Degré, échelon.","example":"Un bon niveau.","level":"A2"},
+            {"word":"nombre","type":"nom masculin","definition":"Valeur numérique.","example":"Un grand nombre.","level":"A1"},
+            {"word":"normal","type":"adjectif","definition":"Habituel.","example":"C'est normal.","level":"A1"},
+            {"word":"nuit","type":"nom féminin","definition":"Période sans soleil.","example":"La nuit tombe.","level":"A1"},
+            {"word":"objet","type":"nom masculin","definition":"Chose matérielle.","example":"Un objet lourd.","level":"A1"},
+            {"word":"observer","type":"verbe","definition":"Regarder attentivement.","example":"Il observe le ciel.","level":"A2"},
+            {"word":"occuper","type":"verbe","definition":"Remplir un espace ou un temps.","example":"Il occupe le poste.","level":"A2"},
+            {"word":"odeur","type":"nom féminin","definition":"Sensation olfactive.","example":"Une odeur agréable.","level":"A1"},
+            {"word":"offrir","type":"verbe","definition":"Donner.","example":"Elle offre un cadeau.","level":"A1"},
+            {"word":"ouvrir","type":"verbe","definition":"Donner accès.","example":"Elle ouvre la porte.","level":"A1"},
+            {"word":"page","type":"nom féminin","definition":"Face d'un livre.","example":"Tourne la page.","level":"A1"},
+            {"word":"parler","type":"verbe","definition":"S'exprimer oralement.","example":"Il parle français.","level":"A1"},
+            {"word":"partager","type":"verbe","definition":"Diviser ou échanger.","example":"Ils partagent un repas.","level":"A1"},
+            {"word":"pays","type":"nom masculin","definition":"Territoire avec un gouvernement.","example":"La France est un pays européen.","level":"A1"},
+            {"word":"penser","type":"verbe","definition":"Réfléchir.","example":"Je pense souvent.","level":"A1"},
+            {"word":"petit","type":"adjectif","definition":"De taille réduite.","example":"Un petit chat.","level":"A1"},
+            {"word":"pluie","type":"nom féminin","definition":"Eau qui tombe du ciel.","example":"La pluie commence.","level":"A1"},
+            {"word":"pouvoir","type":"verbe","definition":"Avoir la capacité.","example":"Je peux venir.","level":"A1"},
+            {"word":"prendre","type":"verbe","definition":"Saisir.","example":"Prends ce livre.","level":"A1"},
+            {"word":"qualité","type":"nom féminin","definition":"Caractéristique positive.","example":"Bonne qualité.","level":"A2"},
+            {"word":"quand","type":"adverbe","definition":"À quel moment.","example":"Quand arrives-tu ?","level":"A1"},
+            {"word":"question","type":"nom féminin","definition":"Phrase interrogative.","example":"Bonne question.","level":"A1"},
+            {"word":"raison","type":"nom féminin","definition":"Cause logique.","example":"Pour cette raison.","level":"A1"},
+            {"word":"rapide","type":"adjectif","definition":"Qui va vite.","example":"Une voiture rapide.","level":"A1"},
+            {"word":"recevoir","type":"verbe","definition":"Obtenir.","example":"Recevoir un message.","level":"A1"},
+            {"word":"regarder","type":"verbe","definition":"Porter les yeux.","example":"Regarde ici.","level":"A1"},
+            {"word":"répondre","type":"verbe","definition":"Donner une réponse.","example":"Réponds vite.","level":"A1"},
+            {"word":"route","type":"nom féminin","definition":"Voie pour circuler.","example":"La route est longue.","level":"A1"},
+            {"word":"savoir","type":"verbe","definition":"Avoir connaissance.","example":"Je sais la réponse.","level":"A1"},
+            {"word":"semaine","type":"nom féminin","definition":"Période de sept jours.","example":"La semaine prochaine.","level":"A1"},
+            {"word":"sentir","type":"verbe","definition":"Percevoir une sensation.","example":"Je sens une odeur.","level":"A1"},
+            {"word":"situation","type":"nom féminin","definition":"État des choses.","example":"Situation difficile.","level":"A2"},
+            {"word":"soleil","type":"nom masculin","definition":"Étoile qui éclaire la Terre.","example":"Le soleil brille aujourd'hui.","level":"A1"},
+            {"word":"souvent","type":"adverbe","definition":"Fréquemment.","example":"Je viens souvent ici.","level":"A1"},
+            {"word":"temps","type":"nom masculin","definition":"Durée ou état météorologique.","example":"Le temps passe vite.","level":"A1"},
+            {"word":"toujours","type":"adverbe","definition":"À tout moment.","example":"Elle est toujours gentille.","level":"A1"},
+            {"word":"train","type":"nom masculin","definition":"Moyen de transport ferroviaire.","example":"Le train arrive à l'heure.","level":"A1"},
+            {"word":"travail","type":"nom masculin","definition":"Activité professionnelle.","example":"Il cherche du travail.","level":"A1"},
+            {"word":"triste","type":"adjectif","definition":"Qui ressent de la peine.","example":"Elle semble triste.","level":"A1"},
+            {"word":"trouver","type":"verbe","definition":"Découvrir.","example":"Il trouve la solution.","level":"A1"},
+            {"word":"ville","type":"nom féminin","definition":"Zone urbaine habitée.","example":"Cette ville est animée.","level":"A1"},
+            {"word":"vite","type":"adverbe","definition":"Rapidement.","example":"Elle court vite.","level":"A1"},
+            {"word":"vivre","type":"verbe","definition":"Être en vie.","example":"Ils vivent ici.","level":"A1"},
+            {"word":"voiture","type":"nom féminin","definition":"Véhicule motorisé.","example":"Elle conduit une voiture rouge.","level":"A1"},
+            {"word":"abandonner","type":"verbe","definition":"Laisser définitivement.","example":"Il a abandonné le projet.","level":"B1","conjugation":{"présent":["j'abandonne","tu abandonnes","il/elle abandonne","nous abandonnons","vous abandonnez","ils/elles abandonnent"],"passé composé":["j'ai abandonné","tu as abandonné","il/elle a abandonné","nous avons abandonné","vous avez abandonné","ils/elles ont abandonné"]}},
+            {"word":"absolument","type":"adverbe","definition":"Totalement, complètement.","example":"C'est absolument nécessaire.","level":"B1"},
+            {"word":"accepter","type":"verbe","definition":"Consentir à recevoir.","example":"J'accepte ton invitation.","level":"A2"},
+            {"word":"acheter","type":"verbe","definition":"Acquérir contre de l'argent.","example":"Nous achetons du pain.","level":"A1"},
+            {"word":"actuel","type":"adjectif","definition":"Présent, du moment.","example":"La situation actuelle est compliquée.","level":"B1"},
+            {"word":"adresse","type":"nom féminin","definition":"Indication du domicile.","example":"Quelle est ton adresse?","level":"A1"},
+            {"word":"affection","type":"nom féminin","definition":"Sentiment de tendresse.","example":"Il a beaucoup d'affection pour elle.","level":"B1"},
+            {"word":"agréable","type":"adjectif","definition":"Qui procure du plaisir.","example":"Une journée agréable.","level":"A2"},
+            {"word":"ailleurs","type":"adverbe","definition":"Dans un autre lieu.","example":"Il habite ailleurs.","level":"A2"},
+            {"word":"ainsi","type":"adverbe","definition":"De cette manière.","example":"Ainsi finit l'histoire.","level":"B1"},
+            {"word":"ajouter","type":"verbe","definition":"Mettre en plus.","example":"Ajoute du sel.","level":"A2"},
+            {"word":"alcool","type":"nom masculin","definition":"Boisson alcoolisée.","example":"Il ne boit pas d'alcool.","level":"A2"},
+            {"word":"alimenter","type":"verbe","definition":"Fournir de la nourriture.","example":"Il faut alimenter le débat.","level":"B2"},
+            {"word":"allonger","type":"verbe","definition":"Rendre plus long.","example":"Il faut allonger la durée.","level":"B1"},
+            {"word":"alors","type":"adverbe","definition":"À ce moment-là.","example":"Alors, tu viens?","level":"A1"},
+            {"word":"améliorer","type":"verbe","definition":"Rendre meilleur.","example":"Il veut améliorer son français.","level":"B1"},
+            {"word":"amical","type":"adjectif","definition":"Qui montre de l'amitié.","example":"Un geste amical.","level":"A2"},
+            {"word":"amitié","type":"nom féminin","definition":"Sentiment d'affection mutuelle.","example":"Leur amitié est solide.","level":"A2"},
+            {"word":"angoisse","type":"nom féminin","definition":"Grande inquiétude.","example":"Il ressent de l'angoisse.","level":"B2"},
+            {"word":"animé","type":"adjectif","definition":"Plein de vie.","example":"Un quartier animé.","level":"A2"},
+            {"word":"annuler","type":"verbe","definition":"Rendre sans effet.","example":"Ils annulent le voyage.","level":"A2"},
+            {"word":"anxieux","type":"adjectif","definition":"Qui ressent de l'anxiété.","example":"Il est anxieux avant l'examen.","level":"B1"},
+            {"word":"apparaître","type":"verbe","definition":"Se montrer, devenir visible.","example":"Le soleil apparaît.","level":"B1"},
+            {"word":"appartement","type":"nom masculin","definition":"Logement dans un immeuble.","example":"Il loue un appartement.","level":"A1"},
+            {"word":"appartenir","type":"verbe","definition":"Être la propriété de.","example":"Ce livre m'appartient.","level":"A2"},
+            {"word":"applaudir","type":"verbe","definition":"Battre des mains.","example":"Le public applaudit.","level":"A2"},
+            {"word":"apporter","type":"verbe","definition":"Porter vers quelqu'un.","example":"Apporte-moi le journal.","level":"A1"},
+            {"word":"apprécier","type":"verbe","definition":"Estimer la valeur de.","example":"J'apprécie ton aide.","level":"A2"},
+            {"word":"apprentissage","type":"nom masculin","definition":"Action d'apprendre.","example":"L'apprentissage des langues.","level":"B1"},
+            {"word":"après","type":"préposition","definition":"Postérieurement à.","example":"Après le déjeuner.","level":"A1"},
+            {"word":"architecte","type":"nom masculin","definition":"Concepteur de bâtiments.","example":"L'architecte dessine les plans.","level":"A2"},
+            {"word":"arrêter","type":"verbe","definition":"Cesser de bouger.","example":"Arrête de parler!","level":"A1"},
+            {"word":"arrière","type":"adverbe","definition":"Vers le dos.","example":"Regarde en arrière.","level":"A2"},
+            {"word":"assez","type":"adverbe","definition":"Suffisamment.","example":"J'ai assez mangé.","level":"A1"},
+            {"word":"assister","type":"verbe","definition":"Être présent à.","example":"J'assiste à la réunion.","level":"A2"},
+            {"word":"assurer","type":"verbe","definition":"Garantir, certifier.","example":"Je t'assure que c'est vrai.","level":"B1"},
+            {"word":"atelier","type":"nom masculin","definition":"Lieu de travail.","example":"Un atelier de peinture.","level":"A2"},
+            {"word":"atmosphère","type":"nom féminin","definition":"Air qui entoure la Terre.","example":"L'atmosphère terrestre.","level":"B1"},
+            {"word":"attacher","type":"verbe","definition":"Fixer avec un lien.","example":"Attache ta ceinture.","level":"A1"},
+            {"word":"atteindre","type":"verbe","definition":"Parvenir à toucher.","example":"Il atteint son objectif.","level":"B1"},
+            {"word":"attentif","type":"adjectif","definition":"Qui fait attention.","example":"Un élève attentif.","level":"A2"},
+            {"word":"atterrir","type":"verbe","definition":"Se poser au sol (avion).","example":"L'avion atterrit.","level":"A2"},
+            {"word":"attitude","type":"nom féminin","definition":"Manière de se comporter.","example":"Il a une bonne attitude.","level":"B1"},
+            {"word":"aucunement","type":"adverbe","definition":"Pas du tout.","example":"Je ne suis aucunement d'accord.","level":"B2"},
+            {"word":"aujourd'hui","type":"adverbe","definition":"Le jour présent.","example":"Aujourd'hui il fait beau.","level":"A1"},
+            {"word":"auparavant","type":"adverbe","definition":"Avant ce moment.","example":"Je l'avais vu auparavant.","level":"B1"},
+            {"word":"auprès","type":"préposition","definition":"Près de, à côté de.","example":"Il reste auprès de sa famille.","level":"B1"},
+            {"word":"aurore","type":"nom féminin","definition":"Moment où le jour se lève.","example":"L'aurore boréale.","level":"C1"},
+            {"word":"aussitôt","type":"adverbe","definition":"Immédiatement.","example":"Il est parti aussitôt.","level":"B1"},
+            {"word":"autant","type":"adverbe","definition":"Dans la même quantité.","example":"Il travaille autant que toi.","level":"A2"},
+            {"word":"authentique","type":"adjectif","definition":"Véritable, sincère.","example":"Un document authentique.","level":"B2"},
+            {"word":"autobus","type":"nom masculin","definition":"Véhicule de transport en commun.","example":"Je prends l'autobus.","level":"A1"},
+            {"word":"autoriser","type":"verbe","definition":"Donner la permission.","example":"Il autorise la sortie.","level":"B1"},
+            {"word":"autoroute","type":"nom féminin","definition":"Large route à grande vitesse.","example":"Nous prenons l'autoroute.","level":"A2"},
+            {"word":"autour","type":"préposition","definition":"Dans l'espace environnant.","example":"Tourne autour de la table.","level":"A2"},
+            {"word":"autre","type":"adjectif","definition":"Différent, distinct.","example":"Une autre idée.","level":"A1"},
+            {"word":"autrefois","type":"adverbe","definition":"Dans le passé.","example":"Autrefois, tout était différent.","level":"B1"},
+            {"word":"autrement","type":"adverbe","definition":"D'une autre manière.","example":"Fais-le autrement.","level":"B1"},
+            {"word":"avantage","type":"nom masculin","definition":"Profit, bénéfice.","example":"C'est un grand avantage.","level":"B1"},
+            {"word":"avant","type":"préposition","definition":"Antérieurement à.","example":"Avant midi.","level":"A1"},
+            {"word":"aventure","type":"nom féminin","definition":"Entreprise hasardeuse.","example":"Quelle aventure!","level":"A2"},
+            {"word":"avertir","type":"verbe","definition":"Prévenir d'un danger.","example":"Je t'avertis du risque.","level":"B1"},
+            {"word":"aveugle","type":"adjectif","definition":"Qui ne voit pas.","example":"Il est aveugle de naissance.","level":"B1"},
+            {"word":"avis","type":"nom masculin","definition":"Opinion, point de vue.","example":"Quel est ton avis?","level":"A2"},
+            {"word":"avocat","type":"nom masculin","definition":"Professionnel du droit.","example":"Il consulte son avocat.","level":"A2"},
+            {"word":"avouer","type":"verbe","definition":"Reconnaître comme vrai.","example":"Il avoue son erreur.","level":"B1"},
+            {"word":"baisser","type":"verbe","definition":"Mettre plus bas.","example":"Baisse le volume.","level":"A2"},
+            {"word":"balancer","type":"verbe","definition":"Mouvoir de côté et d'autre.","example":"Il balance les bras.","level":"A2"},
+            {"word":"bande","type":"nom féminin","definition":"Groupe de personnes.","example":"Une bande d'amis.","level":"A2"},
+            {"word":"banlieue","type":"nom féminin","definition":"Zone autour d'une ville.","example":"Il habite en banlieue.","level":"A2"},
+            {"word":"banque","type":"nom féminin","definition":"Établissement financier.","example":"Je vais à la banque.","level":"A1"},
+            {"word":"barbecue","type":"nom masculin","definition":"Gril pour cuire en plein air.","example":"Un barbecue dans le jardin.","level":"A2"},
+            {"word":"barrer","type":"verbe","definition":"Fermer le passage.","example":"La route est barrée.","level":"A2"},
+            {"word":"bataille","type":"nom féminin","definition":"Combat entre armées.","example":"Une bataille historique.","level":"B1"},
+            {"word":"battre","type":"verbe","definition":"Frapper à coups répétés.","example":"Son cœur bat vite.","level":"A2"},
+            {"word":"bavard","type":"adjectif","definition":"Qui parle beaucoup.","example":"Un enfant bavard.","level":"A2"},
+            {"word":"beauté","type":"nom féminin","definition":"Qualité de ce qui est beau.","example":"La beauté du paysage.","level":"A2"},
+            {"word":"beaucoup","type":"adverbe","definition":"En grande quantité.","example":"Il mange beaucoup.","level":"A1"},
+            {"word":"bénévole","type":"nom masculin","definition":"Qui travaille sans être payé.","example":"Il est bénévole.","level":"B1"},
+            {"word":"bercer","type":"verbe","definition":"Balancer doucement.","example":"Elle berce le bébé.","level":"B1"},
+            {"word":"besogne","type":"nom féminin","definition":"Travail pénible.","example":"Une rude besogne.","level":"C1"},
+            {"word":"bête","type":"adjectif","definition":"Stupide, sot.","example":"Une erreur bête.","level":"A2"},
+            {"word":"biberon","type":"nom masculin","definition":"Bouteille pour bébé.","example":"Le bébé boit son biberon.","level":"A1"},
+            {"word":"bientôt","type":"adverbe","definition":"Dans peu de temps.","example":"À bientôt!","level":"A1"},
+            {"word":"bijou","type":"nom masculin","definition":"Objet de parure précieux.","example":"Un bijou en or.","level":"A2"},
+            {"word":"billet","type":"nom masculin","definition":"Ticket ou argent.","example":"Un billet de train.","level":"A1"},
+            {"word":"biologie","type":"nom féminin","definition":"Science du vivant.","example":"Il étudie la biologie.","level":"B1"},
+            {"word":"biscuit","type":"nom masculin","definition":"Gâteau sec.","example":"Un paquet de biscuits.","level":"A1"},
+            {"word":"blague","type":"nom féminin","definition":"Plaisanterie.","example":"Raconte une blague.","level":"A2"},
+            {"word":"blâmer","type":"verbe","definition":"Reprocher.","example":"Il ne faut pas le blâmer.","level":"B2"},
+            {"word":"blesser","type":"verbe","definition":"Causer une blessure.","example":"Il s'est blessé au genou.","level":"A2"},
+            {"word":"bloquer","type":"verbe","definition":"Empêcher le passage.","example":"La porte est bloquée.","level":"A2"},
+            {"word":"bohème","type":"adjectif","definition":"Qui vit sans contraintes.","example":"Une vie bohème.","level":"C1"},
+            {"word":"boisson","type":"nom féminin","definition":"Liquide que l'on boit.","example":"Une boisson fraîche.","level":"A1"},
+            {"word":"boîte","type":"nom féminin","definition":"Contenant fermé.","example":"Une boîte de chocolats.","level":"A1"},
+            {"word":"bonbon","type":"nom masculin","definition":"Friandise sucrée.","example":"Il mange des bonbons.","level":"A1"},
+            {"word":"bonhomme","type":"nom masculin","definition":"Homme simple.","example":"Un bonhomme de neige.","level":"A2"},
+            {"word":"bonjour","type":"interjection","definition":"Salutation du matin.","example":"Bonjour à tous!","level":"A1"},
+            {"word":"bonsoir","type":"interjection","definition":"Salutation du soir.","example":"Bonsoir madame.","level":"A1"},
+            {"word":"bonté","type":"nom féminin","definition":"Qualité d'une personne bonne.","example":"Il est d'une grande bonté.","level":"B1"},
+            {"word":"bordure","type":"nom féminin","definition":"Ce qui borde.","example":"La bordure du trottoir.","level":"B1"},
+            {"word":"borgne","type":"adjectif","definition":"Qui ne voit que d'un œil.","example":"Un pirate borgne.","level":"C1"},
+            {"word":"borne","type":"nom féminin","definition":"Limite, marque.","example":"Une borne kilométrique.","level":"B1"},
+            {"word":"bosquet","type":"nom masculin","definition":"Petit bois.","example":"Se promener dans le bosquet.","level":"C1"},
+            {"word":"botte","type":"nom féminin","definition":"Chaussure montante.","example":"Des bottes de pluie.","level":"A1"},
+            {"word":"bouc","type":"nom masculin","definition":"Mâle de la chèvre.","example":"Le bouc broute.","level":"B1"},
+            {"word":"boucher","type":"verbe","definition":"Fermer une ouverture.","example":"Bouche la bouteille.","level":"A2"},
+            {"word":"boucle","type":"nom féminin","definition":"Anneau, courbe fermée.","example":"Une boucle de cheveux.","level":"A2"},
+            {"word":"bouder","type":"verbe","definition":"Montrer son mécontentement.","example":"Il boude dans son coin.","level":"A2"},
+            {"word":"boue","type":"nom féminin","definition":"Terre détrempée.","example":"Ses chaussures sont pleines de boue.","level":"A2"},
+            {"word":"bouger","type":"verbe","definition":"Faire un mouvement.","example":"Ne bouge pas!","level":"A1"},
+            {"word":"bouillir","type":"verbe","definition":"Porter à ébullition.","example":"L'eau bout.","level":"A2"},
+            {"word":"boulanger","type":"nom masculin","definition":"Qui fait du pain.","example":"Le boulanger se lève tôt.","level":"A1"},
+            {"word":"boulevard","type":"nom masculin","definition":"Large avenue.","example":"Un boulevard animé.","level":"A2"},
+            {"word":"bouleverser","type":"verbe","definition":"Troubler profondément.","example":"Cette nouvelle l'a bouleversé.","level":"B2"},
+            {"word":"bouquet","type":"nom masculin","definition":"Assemblage de fleurs.","example":"Un bouquet de roses.","level":"A1"},
+            {"word":"bourgeois","type":"adjectif","definition":"De la classe moyenne aisée.","example":"Un quartier bourgeois.","level":"B2"},
+            {"word":"bourse","type":"nom féminin","definition":"Marché financier ou aide.","example":"Il reçoit une bourse.","level":"B1"},
+            {"word":"bousculer","type":"verbe","definition":"Pousser brutalement.","example":"Il m'a bousculé.","level":"A2"},
+            {"word":"boussole","type":"nom féminin","definition":"Instrument d'orientation.","example":"Une boussole indique le nord.","level":"B1"},
+            {"word":"boutique","type":"nom féminin","definition":"Petit magasin.","example":"Une boutique de vêtements.","level":"A1"},
+            {"word":"bouton","type":"nom masculin","definition":"Petit objet rond.","example":"Un bouton de chemise.","level":"A1"}
+        ];
+
+        // State management
+        let currentFilter = 'all';
+        let currentSearchMode = 'word';
+        let filteredData = [...dictionary];
+        let favorites = [];
+        let quizScore = 0;
+        let quizTotal = 0;
+
+        // Admin credentials
+        const ADMIN_USERNAME = 'DevTeamAdmin';
+        const ADMIN_PASSWORD = 'DeVel0ppementTeamAdminaccess?';
+        const ADMIN_EMAIL = 'gabethan1316@gmail.com';
+        let isAdminLoggedIn = false;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            loadFromStorage();
+            loadFavorites();
+            updateStats();
+            renderResults(filteredData);
+            attachEventListeners();
+            displayWordOfTheDay();
+        }
+
+        function loadFavorites() {
+            try {
+                const stored = localStorage.getItem('favorites');
+                if (stored) {
+                    favorites = JSON.parse(stored);
+                }
+            } catch (e) {
+                favorites = [];
+            }
+        }
+
+        function saveFavorites() {
+            try {
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+            } catch (e) {
+                console.error('Failed to save favorites');
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const stored = localStorage.getItem('frenchDictionary');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    dictionary.length = 0;
+                    dictionary.push(...parsed);
+                    filteredData = [...dictionary];
+                }
+            } catch (e) {
+                console.log('No stored data found, using default dictionary');
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('frenchDictionary', JSON.stringify(dictionary));
+            } catch (e) {
+                console.error('Failed to save to storage:', e);
+            }
+        }
+
+        function attachEventListeners() {
+            // Search input
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', handleSearch);
+
+            // Search mode
+            const searchMode = document.getElementById('searchMode');
+            searchMode.addEventListener('change', (e) => {
+                currentSearchMode = e.target.value;
+                handleSearch();
+            });
+
+            // Filter buttons
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.type;
+                    handleSearch();
+                });
+            });
+        }
+
+        function handleSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value.toLowerCase().trim();
+
+            let results = [...dictionary];
+
+            // Apply type filter
+            if (currentFilter !== 'all') {
+                results = results.filter(word => {
+                    const type = word.type.toLowerCase();
+                    return type.includes(currentFilter);
+                });
+            }
+
+            // Apply search filter
+            if (query) {
+                results = results.filter(word => {
+                    if (currentSearchMode === 'word') {
+                        return word.word.toLowerCase().includes(query);
+                    } else if (currentSearchMode === 'definition') {
+                        return word.definition.toLowerCase().includes(query);
+                    } else {
+                        return word.word.toLowerCase().includes(query) || 
+                               word.definition.toLowerCase().includes(query) ||
+                               word.example.toLowerCase().includes(query);
+                    }
+                });
+            }
+
+            filteredData = results;
+            renderResults(results);
+            updateStats();
+        }
+
+        function renderResults(results) {
+            const container = document.getElementById('results');
+            
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <h2>Aucun résultat trouvé</h2>
+                        <p>Essayez une autre recherche</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = results.map(word => {
+                const isFavorite = favorites.includes(word.word);
+                const favoriteIcon = isFavorite ? '❤️' : '🤍';
+                
+                return `
+                <div class="word-card">
+                    <div class="word-header">
+                        <div class="word-title">
+                            ${word.word}
+                            <span style="cursor: pointer; margin-left: 10px; font-size: 0.8em;" onclick="toggleFavorite('${word.word}')">
+                                ${favoriteIcon}
+                            </span>
+                            ${word.conjugation ? '<span style="cursor: pointer; margin-left: 5px; font-size: 0.8em;" onclick="showConjugation(\'' + word.word.replace(/'/g, "\\'") + '\')">📖</span>' : ''}
+                            <span style="cursor: pointer; margin-left: 5px; font-size: 0.8em;" onclick="pronounceWord('${word.word}')">
+                                🔊
+                            </span>
+                        </div>
+                        <div>
+                            <span class="word-type">${word.type}</span>
+                            ${word.level ? `<span class="word-level">${word.level}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="word-definition">${word.definition}</div>
+                    <div class="word-example">${word.example}</div>
+                </div>
+            `}).join('');
+
+            container.innerHTML = html;
+        }
+
+        function updateStats() {
+            document.getElementById('totalWords').textContent = dictionary.length;
+            document.getElementById('filteredWords').textContent = filteredData.length;
+            document.getElementById('wordCount').textContent = dictionary.length;
+            document.getElementById('favCount').textContent = favorites.length;
+        }
+
+        function toggleFavorite(word) {
+            const index = favorites.indexOf(word);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showNotification(`💔 "${word}" retiré des favoris`, 'info');
+            } else {
+                favorites.push(word);
+                showNotification(`❤️ "${word}" ajouté aux favoris`, 'success');
+            }
+            saveFavorites();
+            updateStats();
+            renderResults(filteredData);
+        }
+
+        function viewFavorites() {
+            if (favorites.length === 0) {
+                showNotification('💔 Aucun favori pour le moment', 'info');
+                return;
+            }
+            
+            const favoriteWords = dictionary.filter(w => favorites.includes(w.word));
+            filteredData = favoriteWords;
+            renderResults(favoriteWords);
+            updateStats();
+            showNotification(`❤️ Affichage de ${favorites.length} favoris`, 'success');
+        }
+
+        function pronounceWord(word) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 0.8;
+                window.speechSynthesis.speak(utterance);
+                showNotification(`🔊 Prononciation de "${word}"`, 'info');
+            } else {
+                showNotification('❌ Synthèse vocale non disponible', 'error');
+            }
+        }
+
+        function showConjugation(wordText) {
+            const word = dictionary.find(w => w.word === wordText);
+            if (!word || !word.conjugation) {
+                showNotification('❌ Pas de conjugaison disponible', 'error');
+                return;
+            }
+
+            const modalHTML = `
+                <div class="modal" onclick="if(event.target === this) closeModal()">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>📖 Conjugaison: ${word.word}</h2>
+                            <button class="close-btn" onclick="closeModal()">✕</button>
+                        </div>
+                        <div class="admin-section info-zone">
+                            <h3>Présent</h3>
+                            ${word.conjugation.présent.map(c => `<p>• ${c}</p>`).join('')}
+                        </div>
+                        ${word.conjugation['passé composé'] ? `
+                        <div class="admin-section success-zone">
+                            <h3>Passé Composé</h3>
+                            ${word.conjugation['passé composé'].map(c => `<p>• ${c}</p>`).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeModal() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(m => m.remove());
+        }
+
+        function startQuiz() {
+            if (dictionary.length < 4) {
+                showNotification('❌ Pas assez de mots pour un quiz', 'error');
+                return;
+            }
+
+            quizScore = 0;
+            quizTotal = 10;
+            let currentQuestion = 0;
+
+            function showQuestion() {
+                if (currentQuestion >= quizTotal) {
+                    showQuizResults();
+                    return;
+                }
+
+                const randomWord = dictionary[Math.floor(Math.random() * dictionary.length)];
+                const wrongWords = dictionary
+                    .filter(w => w.word !== randomWord.word)
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 3);
+                
+                const allChoices = [randomWord, ...wrongWords].sort(() => Math.random() - 0.5);
+
+                const quizHTML = `
+                    <div class="modal" id="quizModal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2>🎯 Quiz - Question ${currentQuestion + 1}/${quizTotal}</h2>
+                                <button class="close-btn" onclick="closeModal()">✕</button>
+                            </div>
+                            <div class="admin-section info-zone">
+                                <h3 style="text-align: center; font-size: 1.5em; margin: 20px 0;">
+                                    ${randomWord.definition}
+                                </h3>
+                                <p style="text-align: center; color: #64748b; margin-bottom: 30px;">
+                                    Quel mot correspond à cette définition?
+                                </p>
+                                <div style="display: grid; gap: 15px;">
+                                    ${allChoices.map(w => `
+                                        <button onclick="checkQuizAnswer('${w.word}', '${randomWord.word}')" 
+                                            class="btn btn-secondary" 
+                                            style="width: 100%; font-size: 1.2em; padding: 15px;">
+                                            ${w.word}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 20px; color: #64748b;">
+                                Score: ${quizScore}/${currentQuestion}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                closeModal();
+                document.body.insertAdjacentHTML('beforeend', quizHTML);
+            }
+
+            window.checkQuizAnswer = function(selected, correct) {
+                if (selected === correct) {
+                    quizScore++;
+                    showNotification('✅ Correct!', 'success');
+                } else {
+                    showNotification(`❌ Faux! C'était "${correct}"`, 'error');
+                }
+                currentQuestion++;
+                setTimeout(showQuestion, 1000);
+            };
+
+            showQuestion();
+        }
+
+        function showQuizResults() {
+            const percentage = Math.round((quizScore / quizTotal) * 100);
+            let message = '';
+            let emoji = '';
+
+            if (percentage >= 90) {
+                message = 'Excellent!';
+                emoji = '🏆';
+            } else if (percentage >= 70) {
+                message = 'Très bien!';
+                emoji = '🌟';
+            } else if (percentage >= 50) {
+                message = 'Pas mal!';
+                emoji = '👍';
+            } else {
+                message = 'Continue à pratiquer!';
+                emoji = '💪';
+            }
+
+            const resultHTML = `
+                <div class="modal" onclick="if(event.target === this) closeModal()">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>${emoji} Résultats du Quiz</h2>
+                            <button class="close-btn" onclick="closeModal()">✕</button>
+                        </div>
+                        <div class="admin-section" style="text-align: center; padding: 40px;">
+                            <h1 style="font-size: 4em; margin: 20px 0;">${percentage}%</h1>
+                            <h2 style="margin-bottom: 20px;">${message}</h2>
+                            <p style="font-size: 1.5em; color: #64748b;">
+                                ${quizScore} / ${quizTotal} bonnes réponses
+                            </p>
+                            <button onclick="startQuiz()" class="btn btn-primary" style="margin: 20px auto; padding: 15px 40px; font-size: 1.1em;">
+                                🔄 Recommencer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            closeModal();
+            document.body.insertAdjacentHTML('beforeend', resultHTML);
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            currentFilter = 'all';
+            currentSearchMode = 'word';
+            document.getElementById('searchMode').value = 'word';
+            
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            filterBtns[0].classList.add('active');
+            
+            filteredData = [...dictionary];
+            renderResults(filteredData);
+            updateStats();
+        }
+
+        function exportDictionary() {
+            const dataStr = JSON.stringify(dictionary, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `dictionnaire-francais-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('✅ Dictionnaire exporté avec succès!', 'success');
+        }
+
+        function importDictionary() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(imported)) {
+                        throw new Error('Format invalide');
+                    }
+
+                    const newWords = imported.filter(word => {
+                        return !dictionary.some(w => w.word.toLowerCase() === word.word.toLowerCase());
+                    });
+
+                    if (newWords.length === 0) {
+                        showNotification('ℹ️ Aucun nouveau mot à importer', 'info');
+                        return;
+                    }
+
+                    dictionary.push(...newWords);
+                    dictionary.sort((a, b) => a.word.localeCompare(b.word));
+                    
+                    saveToStorage();
+                    filteredData = [...dictionary];
+                    renderResults(filteredData);
+                    updateStats();
+                    
+                    showNotification(`✅ ${newWords.length} nouveaux mots importés!`, 'success');
+                } catch (err) {
+                    showNotification('❌ Erreur lors de l\'importation: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset input
+            event.target.value = '';
+        }
+
+        function displayWordOfTheDay() {
+            const today = new Date().toDateString();
+            let savedWord = localStorage.getItem('wordOfTheDay');
+            let savedDate = localStorage.getItem('wordOfTheDayDate');
+
+            if (savedDate !== today) {
+                const randomIndex = Math.floor(Math.random() * dictionary.length);
+                savedWord = JSON.stringify(dictionary[randomIndex]);
+                localStorage.setItem('wordOfTheDay', savedWord);
+                localStorage.setItem('wordOfTheDayDate', today);
+            }
+
+            const word = JSON.parse(savedWord);
+            const container = document.getElementById('wordOfDay');
+            
+            container.innerHTML = `
+                <h3>🌟 Mot du Jour</h3>
+                <div class="word">${word.word}</div>
+                <div style="font-size: 0.9em; opacity: 0.9;">${word.type}</div>
+                <div style="margin-top: 10px;">${word.definition}</div>
+                <div style="margin-top: 8px; font-style: italic; font-size: 0.95em;">"${word.example}"</div>
+            `;
+        }
+
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#3b82f6'
+            };
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s;
+                font-weight: 600;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function showAdminPanel() {
+            const username = prompt('👤 Nom d\'utilisateur:');
+            if (!username) return;
+            
+            const password = prompt('🔒 Mot de passe:');
+            if (!password) return;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                showNotification('✅ Connexion admin réussie!', 'success');
+                setTimeout(() => openAdminDashboard(), 500);
+            } else {
+                showNotification('❌ Accès refusé!', 'error');
+                alert(`❌ Accès Refusé!\n\nIdentifiants incorrects.\n\nSi vous avez oublié vos identifiants, contactez:\n${ADMIN_EMAIL}`);
+            }
+        }
+
+        function openAdminDashboard() {
+            const modalHTML = `
+                <div class="modal" id="adminModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>🔐 Tableau de Bord Admin</h2>
+                            <button class="close-btn" onclick="closeAdminPanel()">✕</button>
+                        </div>
+                        
+                        <div class="admin-section success-zone">
+                            <h3>➕ Ajouter un Nouveau Mot</h3>
+                            <div class="form-group">
+                                <label>Mot *</label>
+                                <input type="text" id="adminWord" class="form-control" placeholder="Ex: apprendre">
+                            </div>
+                            <div class="form-group">
+                                <label>Type *</label>
+                                <select id="adminType" class="form-control">
+                                    <option value="verbe">Verbe</option>
+                                    <option value="nom masculin">Nom Masculin</option>
+                                    <option value="nom féminin">Nom Féminin</option>
+                                    <option value="adjectif">Adjectif</option>
+                                    <option value="adverbe">Adverbe</option>
+                                    <option value="préposition">Préposition</option>
+                                    <option value="conjonction">Conjonction</option>
+                                    <option value="pronom">Pronom</option>
+                                    <option value="interjection">Interjection</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Définition *</label>
+                                <input type="text" id="adminDefinition" class="form-control" placeholder="Ex: Acquérir des connaissances">
+                            </div>
+                            <div class="form-group">
+                                <label>Exemple *</label>
+                                <input type="text" id="adminExample" class="form-control" placeholder="Ex: J'apprends le français">
+                            </div>
+                            <div class="form-group">
+                                <label>Niveau CECR *</label>
+                                <select id="adminLevel" class="form-control">
+                                    <option value="A1">A1 - Débutant</option>
+                                    <option value="A2">A2 - Élémentaire</option>
+                                    <option value="B1">B1 - Intermédiaire</option>
+                                    <option value="B2">B2 - Intermédiaire Avancé</option>
+                                    <option value="C1">C1 - Avancé</option>
+                                    <option value="C2">C2 - Maîtrise</option>
+                                </select>
+                            </div>
+                            <button onclick="addWord()" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                                ✅ Ajouter le Mot
+                            </button>
+                        </div>
+
+                        <div class="admin-section info-zone">
+                            <h3>📊 Statistiques Détaillées</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <strong>${dictionary.length}</strong>
+                                    <span>Total</span>
+                                </div>
+                                <div class="stat-card">
+                                    <strong>${dictionary.filter(w => w.type === 'verbe').length}</strong>
+                                    <span>Verbes</span>
+                                </div>
+                                <div class="stat-card">
+                                    <strong>${dictionary.filter(w => w.type.includes('nom')).length}</strong>
+                                    <span>Noms</span>
+                                </div>
+                                <div class="stat-card">
+                                    <strong>${dictionary.filter(w => w.type === 'adjectif').length}</strong>
+                                    <span>Adjectifs</span>
+                                </div>
+                                <div class="stat-card">
+                                    <strong>${dictionary.filter(w => w.type === 'adverbe').length}</strong>
+                                    <span>Adverbes</span>
+                                </div>
+                                <div class="stat-card">
+                                    <strong>${dictionary.filter(w => w.level === 'A1').length}</strong>
+                                    <span>Niveau A1</span>
+                                </div>
+                                <div class="stat-card">
+                                    <strong>${favorites.length}</strong>
+                                    <span>Favoris</span>
+                                </div>
+                                <div class="stat-card">
+                                    <strong>${dictionary.filter(w => w.conjugation).length}</strong>
+                                    <span>Avec conjugaison</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-section" style="background: #fef9c3; border-color: #fde047;">
+                            <h3>🛠️ Outils de Gestion</h3>
+                            <button onclick="sortDictionary()" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">
+                                🔤 Trier par Ordre Alphabétique
+                            </button>
+                            <button onclick="removeDuplicates()" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">
+                                🧹 Supprimer les Doublons
+                            </button>
+                            <button onclick="exportAdminReport()" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">
+                                📄 Générer Rapport Admin
+                            </button>
+                            <button onclick="bulkAddWords()" class="btn btn-import" style="width: 100%; margin-bottom: 10px;">
+                                📦 Ajout en Masse (JSON)
+                            </button>
+                            <button onclick="searchDuplicateDefinitions()" class="btn btn-secondary" style="width: 100%;">
+                                🔎 Rechercher Définitions Similaires
+                            </button>
+                        </div>
+
+                        <div class="admin-section" style="background: #e0e7ff; border-color: #c7d2fe;">
+                            <h3>🎓 Outils Pédagogiques</h3>
+                            <button onclick="generateStudyList('A1')" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">
+                                📝 Générer Liste A1 (Débutant)
+                            </button>
+                            <button onclick="generateStudyList('B1')" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">
+                                📝 Générer Liste B1 (Intermédiaire)
+                            </button>
+                            <button onclick="exportFlashcards()" class="btn btn-primary" style="width: 100%;">
+                                🎴 Exporter Flashcards (PDF-ready)
+                            </button>
+                        </div>
+
+                        <div class="admin-section danger-zone">
+                            <h3>⚠️ Zone de Danger</h3>
+                            <p style="margin-bottom: 15px; color: #991b1b; font-weight: 600;">
+                                Actions irréversibles - Utilisez avec précaution!
+                            </p>
+                            <button onclick="resetToDefaults()" class="btn" style="width: 100%; margin-bottom: 10px; background: #f59e0b; color: white;">
+                                🔄 Réinitialiser au Dictionnaire par Défaut
+                            </button>
+                            <button onclick="clearAllData()" class="btn" style="width: 100%; background: #dc2626; color: white;">
+                                🗑️ Supprimer Toutes les Données
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeAdminPanel() {
+            const modal = document.getElementById('adminModal');
+            if (modal) modal.remove();
+        }
+
+        function addWord() {
+            const word = document.getElementById('adminWord').value.trim();
+            const type = document.getElementById('adminType').value;
+            const definition = document.getElementById('adminDefinition').value.trim();
+            const example = document.getElementById('adminExample').value.trim();
+            const level = document.getElementById('adminLevel').value;
+
+            if (!word || !definition || !example) {
+                showNotification('❌ Veuillez remplir tous les champs!', 'error');
+                return;
+            }
+
+            // Check for duplicates
+            const exists = dictionary.find(w => w.word.toLowerCase() === word.toLowerCase());
+            if (exists) {
+                showNotification(`❌ Le mot "${word}" existe déjà!\n\nDéfinition: ${exists.definition}`, 'error');
+                return;
+            }
+
+            const newWord = { word, type, definition, example, level };
+            dictionary.push(newWord);
+            dictionary.sort((a, b) => a.word.localeCompare(b.word));
+            
+            saveToStorage();
+            updateStats();
+            filteredData = [...dictionary];
+            renderResults(filteredData);
+            
+            showNotification(`✅ "${word}" ajouté avec succès!`, 'success');
+            
+            // Clear form
+            document.getElementById('adminWord').value = '';
+            document.getElementById('adminDefinition').value = '';
+            document.getElementById('adminExample').value = '';
+            
+            closeAdminPanel();
+        }
+
+        function sortDictionary() {
+            dictionary.sort((a, b) => a.word.localeCompare(b.word));
+            saveToStorage();
+            filteredData = [...dictionary];
+            renderResults(filteredData);
+            showNotification('✅ Dictionnaire trié alphabétiquement!', 'success');
+        }
+
+        function removeDuplicates() {
+            const before = dictionary.length;
+            const seen = new Set();
+            const unique = [];
+            
+            for (const word of dictionary) {
+                const key = word.word.toLowerCase();
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    unique.push(word);
+                }
+            }
+            
+            dictionary.length = 0;
+            dictionary.push(...unique);
+            saveToStorage();
+            filteredData = [...dictionary];
+            renderResults(filteredData);
+            
+            const removed = before - dictionary.length;
+            if (removed > 0) {
+                showNotification(`✅ ${removed} doublon(s) supprimé(s)!`, 'success');
+            } else {
+                showNotification('✅ Aucun doublon trouvé!', 'info');
+            }
+        }
+
+        function exportAdminReport() {
+            const report = {
+                generated: new Date().toISOString(),
+                totalWords: dictionary.length,
+                byType: {
+                    verbes: dictionary.filter(w => w.type === 'verbe').length,
+                    noms: dictionary.filter(w => w.type.includes('nom')).length,
+                    adjectifs: dictionary.filter(w => w.type === 'adjectif').length,
+                    adverbes: dictionary.filter(w => w.type === 'adverbe').length,
+                },
+                byLevel: {
+                    A1: dictionary.filter(w => w.level === 'A1').length,
+                    A2: dictionary.filter(w => w.level === 'A2').length,
+                    B1: dictionary.filter(w => w.level === 'B1').length,
+                    B2: dictionary.filter(w => w.level === 'B2').length,
+                    C1: dictionary.filter(w => w.level === 'C1').length,
+                    C2: dictionary.filter(w => w.level === 'C2').length,
+                },
+                words: dictionary
+            };
+
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `rapport-admin-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('📄 Rapport admin généré!', 'success');
+        }
+
+        function resetToDefaults() {
+            if (confirm('⚠️ Voulez-vous réinitialiser au dictionnaire par défaut?\n\nToutes vos modifications seront perdues!')) {
+                localStorage.removeItem('frenchDictionary');
+                showNotification('🔄 Rechargement...', 'info');
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ ATTENTION!\n\nÊtes-vous sûr de vouloir TOUT supprimer?\n\nCette action est IRRÉVERSIBLE!')) {
+                if (confirm('Dernière confirmation: Supprimer vraiment TOUT?')) {
+                    localStorage.clear();
+                    showNotification('🗑️ Toutes les données supprimées. Rechargement...', 'info');
+                    setTimeout(() => location.reload(), 1500);
+                }
+            }
+        }
+
+        function bulkAddWords() {
+            const input = prompt('📦 Collez votre JSON (array de mots):\n\nFormat: [{"word":"test","type":"nom masculin","definition":"...","example":"...","level":"A1"}]');
+            if (!input) return;
+
+            try {
+                const words = JSON.parse(input);
+                if (!Array.isArray(words)) throw new Error('Doit être un array');
+
+                let added = 0;
+                let skipped = 0;
+
+                words.forEach(word => {
+                    const exists = dictionary.find(w => w.word.toLowerCase() === word.word.toLowerCase());
+                    if (!exists) {
+                        dictionary.push(word);
+                        added++;
+                    } else {
+                        skipped++;
+                    }
+                });
+
+                dictionary.sort((a, b) => a.word.localeCompare(b.word));
+                saveToStorage();
+                filteredData = [...dictionary];
+                renderResults(filteredData);
+                updateStats();
+
+                showNotification(`✅ ${added} mots ajoutés, ${skipped} ignorés (doublons)`, 'success');
+                closeAdminPanel();
+            } catch (e) {
+                showNotification('❌ Erreur de format JSON: ' + e.message, 'error');
+            }
+        }
+
+        function searchDuplicateDefinitions() {
+            const defs = new Map();
+            const duplicates = [];
+
+            dictionary.forEach(word => {
+                const def = word.definition.toLowerCase().trim();
+                if (defs.has(def)) {
+                    duplicates.push({ word: word.word, duplicate: defs.get(def) });
+                } else {
+                    defs.set(def, word.word);
+                }
+            });
+
+            if (duplicates.length === 0) {
+                showNotification('✅ Aucune définition en double trouvée', 'success');
+            } else {
+                const list = duplicates.map(d => `"${d.word}" = "${d.duplicate}"`).join('\n');
+                alert(`🔎 ${duplicates.length} définitions similaires trouvées:\n\n${list.substring(0, 500)}${list.length > 500 ? '\n...' : ''}`);
+            }
+        }
+
+        function generateStudyList(level) {
+            const words = dictionary.filter(w => w.level === level);
+            if (words.length === 0) {
+                showNotification(`❌ Aucun mot de niveau ${level}`, 'error');
+                return;
+            }
+
+            const list = words.map((w, i) => `${i + 1}. ${w.word} (${w.type})\n   ${w.definition}\n   Ex: ${w.example}\n`).join('\n');
+            const blob = new Blob([`LISTE D'ÉTUDE - NIVEAU ${level}\n\n${list}`], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `etude-${level}-${new Date().toISOString().split('T')[0]}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            showNotification(`📝 Liste ${level} générée (${words.length} mots)`, 'success');
+        }
+
+        function exportFlashcards() {
+            const flashcards = dictionary.map((w, i) => ({
+                front: w.word,
+                back: `${w.definition}\n\nExemple: ${w.example}`,
+                type: w.type,
+                level: w.level
+            }));
+
+            const csv = [
+                'Front,Back,Type,Level',
+                ...flashcards.map(f => `"${f.front}","${f.back}","${f.type}","${f.level}"`)
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `flashcards-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            showNotification(`🎴 ${flashcards.length} flashcards exportées`, 'success');
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            .word-card {
+                transition: all 0.3s ease;
+            }
+
+            .word-card:hover {
+                transform: translateY(-2px);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Make functions globally accessible
+        window.toggleFavorite = toggleFavorite;
+        window.pronounceWord = pronounceWord;
+        window.showConjugation = showConjugation;
+        window.closeModal = closeModal;
+        window.viewFavorites = viewFavorites;
+        window.startQuiz = startQuiz;
+        window.exportDictionary = exportDictionary;
+        window.importDictionary = importDictionary;
+        window.handleFileImport = handleFileImport;
+        window.resetSearch = resetSearch;
+        window.showAdminPanel = showAdminPanel;
+        window.closeAdminPanel = closeAdminPanel;
+        window.addWord = addWord;
+        window.sortDictionary = sortDictionary;
+        window.removeDuplicates = removeDuplicates;
+        window.exportAdminReport = exportAdminReport;
+        window.resetToDefaults = resetToDefaults;
+        window.clearAllData = clearAllData;
+        window.bulkAddWords = bulkAddWords;
+        window.searchDuplicateDefinitions = searchDuplicateDefinitions;
+        window.generateStudyList = generateStudyList;
+        window.exportFlashcards = exportFlashcards;
+    </script>
+</body>
+</html>
